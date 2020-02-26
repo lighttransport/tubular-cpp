@@ -1,7 +1,7 @@
 # tubular-cpp, curves primitive to tubular mesh converter in C++
 
 ![xpd](img/pSphere1-xpd.png)
-![obj](img/pSphere1-obj.png)
+![obj](img/pSphere1-obj.jpg)
 
 C++ port of unity-tubular https://github.com/mattatz/unity-tubular
 
@@ -26,9 +26,11 @@ Assume Catmull-Rom curves.
 
 ### Mac or Linux
 
+```
 $ ./bootstrap-clang.sh
 $ cd build
 $ make
+```
 
 ## Usage
 
@@ -46,7 +48,7 @@ Convert curves data to wavefront .obj. Setting is done in `config.json` file.
 
 - `xpd_filepath` Input .xpd file (str)
 - `obj_filepath` Outout wavefront .obj (str)
-- 'max_segments' The maximum number of segments per strand　(int)
+- `max_segments` The maximum number of segments per strand　(int)
 - `radial_segments` The number of radial segments (int)
 - `radius` tube radius(float)
 
