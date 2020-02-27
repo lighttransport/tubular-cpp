@@ -14,7 +14,7 @@ set(TUBULAR_SOURCES
   mesh/triangle-mesh.cc
 )
 
-add_library(${BUILD_TARGET} SHARED
+add_library(${BUILD_TARGET}
             ${TUBULAR_SOURCES})
 
 target_compile_features(${BUILD_TARGET}

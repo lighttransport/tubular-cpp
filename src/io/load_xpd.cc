@@ -98,7 +98,6 @@ bool LoadXPD(
         const float u     = int(prims[size_t(offset + 1)]);
         const float v     = int(prims[size_t(offset + 2)]);
 
-        assert(static_cast<size_t>(face_id) == p_id);
         const size_t cv_offset   = size_t(offset + 3);
         const size_t attr_offset = cv_offset + 3 * xpd_header.numCVs;
 

@@ -50,9 +50,13 @@ if(BUILD_WITH_MARCH_NATIVE)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -mtune=native -march=native")
     message(STATUS "Architecture-aware optimization (-march=native): ENABLED")
 else()
+  if (MSVC)
+  else(MSVC)
+    # TODO(LTE): Use compiler generator expression
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -mtune=native")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -mtune=native")
     message(STATUS "Architecture-aware optimization (-march=native): DISABLED")
+  endif(MSVC)
 endif()
 
 set(CMAKE_CXX_STANDARD 11)
@@ -81,6 +85,6 @@ set(TUBULAR_CLANG_COMPILE_OPTIONS
     -Wall -Wextra -Weverything -Wno-c++98-compat -Wno-c++98-compat-pedantic -Wno-padded)
 
 # build selection
+add_subdirectory(${PROJECT_SOURCE_DIR}/third_party/StaticJSON/)
 add_subdirectory(src)
 add_subdirectory(pc)
-add_subdirectory(${PROJECT_SOURCE_DIR}/third_party/StaticJSON/)

@@ -14,6 +14,13 @@ Assume Catmull-Rom curves.
 * cmake
 * C++11 compiler(clang recommended)
 
+## Supported platform
+
+* [x] Linux 64bit
+* [x] macOS
+* [x] Windows(Visual Studio 2017 or later)
+* [ ] Android(will work)
+
 ## Supported curve data
 
 * [x] Xgen `.xpd` https://github.com/syoyo/tinyxpd
@@ -31,6 +38,17 @@ $ ./bootstrap-clang.sh
 $ cd build
 $ make
 ```
+
+### Windows
+
+For command prompt or PowerShell, simply run `vcsetup.bat` (Use VS2017)
+
+For Git for Windows terminal(mintty bash), run
+
+```
+$ cmd //c vcsetup.bat
+```
+
 
 ## Usage
 
@@ -61,7 +79,6 @@ $ ./tubular-cli /path/to/config.json
 ## TODO
 
 * [ ] Interactive GUI
-* [ ] Windows Visual Studio build
 * [ ] Support more curves format
   * [ ] Cyhair
   * [ ] Alembic
