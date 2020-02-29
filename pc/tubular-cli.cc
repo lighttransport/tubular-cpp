@@ -28,6 +28,6 @@ int main(int argc, char** argv) {
   }
   std::cerr << "Load config json [" << config_path << "]" << std::endl;
 
-  tubular::XpdToObj(tubular_config);
+  tubular::Tubular(tubular_config);
   return EXIT_SUCCESS;
 }

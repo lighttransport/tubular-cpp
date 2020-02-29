@@ -22,7 +22,7 @@ void GenerateSegment(const Curve* curve, const std::vector<FrenetFrame>& frames,
                      std::vector<float3>* normals,
                      std::vector<float4>* tangents);
 
-void XpdToObj(const TubularConfig& config);
+void Tubular(const TubularConfig& config);
 
 }  // namespace tubular
 #endif  // TUBULAR_TUBULAR_H_
