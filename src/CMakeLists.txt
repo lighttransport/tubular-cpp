@@ -10,6 +10,7 @@ set(TUBULAR_SOURCES
   io/tiny_xpd.cc
   io/obj_writer.cc
   io/config-loader.cc
+  io/cyhair.cc
   logger/logger.cc
   mesh/triangle-mesh.cc
 )

@@ -5,6 +5,7 @@
 #include <random>
 
 #include "curve/catmul-rom-curve.h"
+#include "io/cyhair.h"
 #include "io/load_xpd.h"
 #include "io/obj_writer.h"
 #include "logger/logger.h"
@@ -273,7 +274,6 @@ static void CombineUV(const tinyobj::attrib_t& attrib,
   const tinyobj::shape_t tmp_shape = CombineShapes(*shapes_out);
   shapes_out->clear();
   shapes_out->emplace_back(tmp_shape);
-
 }
 
 static void ToTinyObjMesh(const std::vector<TriangleMesh>& meshes,
@@ -400,11 +400,22 @@ static std::vector<std::vector<bool>> RandomSelection(
 void Tubular(const TubularConfig& config) {
   const std::string& xpd_filepath = config.xpd_filepath;
 
-  std::vector<uint32_t> face_ids;
   std::vector<std::vector<std::vector<float>>> curve_vertices;
   std::vector<std::vector<std::vector<float>>> curve_thicknesses;
 
-  LoadXPD(xpd_filepath, face_ids, &curve_vertices, &curve_thicknesses);
+  if (!config.xpd_filepath.empty()) {
+    std::vector<uint32_t> face_ids;
+    LoadXPD(xpd_filepath, face_ids, &curve_vertices, &curve_thicknesses);
+  } else if (!config.cyhair_filepath.empty()) {
+    std::vector<std::vector<float>> _vertices;
+    std::vector<std::vector<float>> _thicknesses;
+    LoadCyHair(config.cyhair_filepath, config.radius, /* is_y_up*/ true,
+               &_vertices, &_thicknesses);
+    curve_vertices.emplace_back(_vertices);
+    curve_thicknesses.emplace_back(_thicknesses);
+  } else {
+    RTLOG_ERROR("Input file path is not specified.");
+  }
 
   assert(curve_vertices.size() == curve_thicknesses.size());
 
