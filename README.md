@@ -25,7 +25,8 @@ Assume Catmull-Rom curves.
 
 * [x] Xgen `.xpd` https://github.com/syoyo/tinyxpd
   * https://knowledge.autodesk.com/support/maya/learn-explore/caas/CloudHelp/cloudhelp/2019/ENU/Maya-CharEffEnvBuild/files/GUID-43899CB9-CE0F-476E-9E94-591AE2F1F807-htm.html
-* [ ] CyHair http://www.cemyuksel.com/research/hairmodels/
+* [x] CyHair http://www.cemyuksel.com/research/hairmodels/
+  * [x] Per-CV radius(thickness)
 * [ ] Photobooth  https://people.csail.mit.edu/sparis/publi/2008/siggraphHair/#docs
 * [ ] Alembic curves?
 
@@ -57,6 +58,7 @@ Convert curves data to wavefront .obj. Setting is done in `config.json` file.
 ```json
 {
     "xpd_filepath": "/path/to/hoge.xpd",
+    "cyhair_filepath": "/path/to/cyhair.hair",
     "obj_filepath": "/pat/to/hoge.obj",
     "max_segments": 15,
     "radial_segments": 3,
@@ -65,12 +67,15 @@ Convert curves data to wavefront .obj. Setting is done in `config.json` file.
 }
 ```
 
+Input curves can be speficied either `xpd_filepath` or `cyhair_filepath`.
+
 - `xpd_filepath` Input .xpd file (str)
+- `cyhair_filepath` Input cyhair .hair file (str)
 - `obj_filepath` Outout wavefront .obj (str)
 - `max_segments` The maximum number of segments per strand　(int)
 - `radial_segments` The number of radial segments (int)
 - `radius_scale` radius scale (float)
-- `user_radius` User defined radius. If `user_radius` is negative, tubular use the original thicknesses. (float)
+- `user_radius` Use user supplied radius. If `user_radius` is negative, tubular uses the thicknesses stored in curves data(cyhair only for now). (float)
 
 ### How to execute
 
@@ -84,7 +89,7 @@ $ ./tubular-cli /path/to/config.json
 * [ ] Support more curves format
   * [x] Cyhair
   * [ ] Alembic
-  * [ ] RenderMan RiCurves
+  * [ ] RenderMan RiCurves?
 
 ## License
 
