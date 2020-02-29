@@ -396,6 +396,21 @@ static std::vector<std::vector<bool>> RandomSelection(
   return ret;
 }
 
+static void FixThicknesses(
+    const TubularConfig& config,
+    std::vector<std::vector<std::vector<float>>>* curve_thicknesses) {
+  for (auto& a : *curve_thicknesses) {
+    for (auto& b : a) {
+      for (auto& c : b) {
+        if (config.user_radius > 0.f) {
+          c = config.user_radius;
+        }
+        c *= config.radius_scale;
+      }
+    }
+  }
+}
+
 void Tubular(const TubularConfig& config) {
   const std::string& xpd_filepath = config.xpd_filepath;
 
@@ -408,13 +423,15 @@ void Tubular(const TubularConfig& config) {
   } else if (!config.cyhair_filepath.empty()) {
     std::vector<std::vector<float>> _vertices;
     std::vector<std::vector<float>> _thicknesses;
-    LoadCyHair(config.cyhair_filepath, config.radius, /* is_y_up*/ true,
-               &_vertices, &_thicknesses);
+    LoadCyHair(config.cyhair_filepath, /* is_y_up*/ true, &_vertices,
+               &_thicknesses);
     curve_vertices.emplace_back(_vertices);
     curve_thicknesses.emplace_back(_thicknesses);
   } else {
     RTLOG_ERROR("Input file path is not specified.");
   }
+
+  FixThicknesses(config, &curve_thicknesses);
 
   assert(curve_vertices.size() == curve_thicknesses.size());
 

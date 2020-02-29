@@ -133,8 +133,8 @@ bool CyHair::Load(const std::string &filepath) {
   return true;
 }
 
-bool LoadCyHair(const std::string &filepath, const float user_thickness,
-                const bool is_y_up, std::vector<std::vector<float>> *vertices,
+bool LoadCyHair(const std::string &filepath, const bool is_y_up,
+                std::vector<std::vector<float>> *vertices,
                 std::vector<std::vector<float>> *thicknesses) {
   CyHair cyhair;
 
@@ -172,11 +172,8 @@ bool LoadCyHair(const std::string &filepath, const float user_thickness,
         _vertices.emplace_back(cyhair.points_.at((offset + v_id) * 3 + 2));
         _vertices.emplace_back(cyhair.points_.at((offset + v_id) * 3 + 1));
       }
-      if (user_thickness > 0.f) {
-        _thicknesses.emplace_back(user_thickness);
-      } else {
-        _thicknesses.emplace_back(cyhair.thicknesses_.at(offset + v_id));
-      }
+
+      _thicknesses.emplace_back(cyhair.thicknesses_.at(offset + v_id));
     }
 
     offset += num_vertices;

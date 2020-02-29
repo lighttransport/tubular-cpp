@@ -47,8 +47,8 @@ public:
   std::vector<unsigned int> strand_offsets_;
 };
 
-bool LoadCyHair(const std::string &filepath, const float user_thickness,
-                const bool is_y_up, std::vector<std::vector<float>> *vertices,
+bool LoadCyHair(const std::string &filepath, const bool is_y_up,
+                std::vector<std::vector<float>> *vertices,
                 std::vector<std::vector<float>> *thicknesses);
 }  // namespace tubular
 
