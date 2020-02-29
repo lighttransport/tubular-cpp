@@ -60,7 +60,8 @@ Convert curves data to wavefront .obj. Setting is done in `config.json` file.
     "obj_filepath": "/pat/to/hoge.obj",
     "max_segments": 15,
     "radial_segments": 3,
-    "radius": 0.008
+    "radius_scale": 1.0,
+    "user_radius": -1.0
 }
 ```
 
@@ -68,7 +69,8 @@ Convert curves data to wavefront .obj. Setting is done in `config.json` file.
 - `obj_filepath` Outout wavefront .obj (str)
 - `max_segments` The maximum number of segments per strand　(int)
 - `radial_segments` The number of radial segments (int)
-- `radius` tube radius(float)
+- `radius_scale` radius scale (float)
+- `user_radius` User defined radius. If `user_radius` is negative, tubular use the original thicknesses. (float)
 
 ### How to execute
 
@@ -80,7 +82,7 @@ $ ./tubular-cli /path/to/config.json
 
 * [ ] Interactive GUI
 * [ ] Support more curves format
-  * [ ] Cyhair
+  * [x] Cyhair
   * [ ] Alembic
   * [ ] RenderMan RiCurves
 
