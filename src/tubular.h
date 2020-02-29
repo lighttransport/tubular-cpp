@@ -12,13 +12,11 @@
 namespace tubular {
 
 TriangleMesh BuildTriangleMesh(const Curve* curve, const int tubularSegments,
-                               const float radius, const int radialSegments,
-                               const bool closed);
+                               const int radialSegments, const bool closed);
 
 void GenerateSegment(const Curve* curve, const std::vector<FrenetFrame>& frames,
-                     const int tubularSegments, const float radius,
-                     const int radialSegments, const int i,
-                     std::vector<float3>* vertices,
+                     const int tubularSegments, const int radialSegments,
+                     const int i, std::vector<float3>* vertices,
                      std::vector<float3>* normals,
                      std::vector<float4>* tangents);
 

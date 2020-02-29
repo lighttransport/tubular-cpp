@@ -4,5 +4,6 @@
     "max_strands": 0,
     "max_segments": 16,
     "radial_segments": 4,
-    "radius": 0.038
+    "radius_scale" : 0.1,
+    "user_radius" : 0.38
 }

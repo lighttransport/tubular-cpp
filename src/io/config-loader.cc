@@ -26,7 +26,12 @@ void init(tubular::TubularConfig* config, ObjectHandler* h) {
   h->add_property(
       "radial_segments",
       &(config->radial_segments));  // TODO(LTE): make this optional?
-  h->add_property("radius", &(config->radius));
+
+  h->add_property("radius_scale", &(config->radius_scale),
+                  staticjson::Flags::Optional);
+  h->add_property("user_radius", &(config->user_radius),
+                  staticjson::Flags::Optional);
+
   h->add_property("max_strands", &(config->max_strands),
                   staticjson::Flags::Optional);
   h->add_property("tile_ratio", &(config->tile_ratio),

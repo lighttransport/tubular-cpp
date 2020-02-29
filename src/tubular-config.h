@@ -13,9 +13,11 @@ struct TubularConfig {
 
   int max_segments    = 10;
   int radial_segments = 4;
-  float radius        = 0.01f;
+  float radius_scale  = 1.f;
+  float user_radius   = -1.f;  // If user_radius is negative, tubular use the
+                               // original thicknesses.
 
-  uint32_t max_strands = 5000;  // 0 -> use all strands
+  uint32_t max_strands = 0;  // 0 -> use all strands
 
   float tile_ratio = 4.0;
 };
