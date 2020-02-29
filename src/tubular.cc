@@ -274,7 +274,6 @@ static void CombineUV(const tinyobj::attrib_t& attrib,
   shapes_out->clear();
   shapes_out->emplace_back(tmp_shape);
 
-  //return std::make_tuple(attrib_out, shapes_out);
 }
 
 static void ToTinyObjMesh(const std::vector<TriangleMesh>& meshes,
@@ -398,7 +397,7 @@ static std::vector<std::vector<bool>> RandomSelection(
   return ret;
 }
 
-void XpdToObj(const TubularConfig& config) {
+void Tubular(const TubularConfig& config) {
   const std::string& xpd_filepath = config.xpd_filepath;
 
   std::vector<uint32_t> face_ids;
