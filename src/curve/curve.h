@@ -10,15 +10,23 @@
 namespace tubular {
 class Curve {
 public:
-  Curve(const std::vector<float3>& points, const bool closed = false) {
-    points_ = points;
-    closed_ = closed;
+  Curve(const std::vector<float3>& points, const std::vector<float>& radiuses,
+        const bool closed = false) {
+    points_   = points;
+    radiuses_ = radiuses;
+    closed_   = closed;
+    assert(points_.size() == radiuses_.size());
   }
   virtual ~Curve();
 
   float3 GetPointAt(const float u) const {
     const float t = GetUtoTmapping(u);
     return GetPoint(t);
+  }
+
+  float GetRadiusAt(const float u) const {
+    const float t = GetUtoTmapping(u);
+    return GetRadius(t);
   }
 
   float3 GetTangentAt(const float u) const {
@@ -162,7 +170,8 @@ public:
   }
 
 protected:
-  virtual float3 GetPoint(float t) const = 0;
+  virtual float3 GetPoint(const float t) const = 0;
+  virtual float GetRadius(const float t) const = 0;
 
   virtual float3 GetTangent(const float t) const {
     const float delta = 0.001f;
@@ -183,7 +192,6 @@ protected:
   // equidistant
   float GetUtoTmapping(const float u) const {
     const std::vector<float>& arcLengths = GetLengths();
-
     int i = 0, il = int(arcLengths.size());
 
     // The targeted u distance value to get
@@ -235,6 +243,7 @@ protected:
   }
 
   std::vector<float3> points_;
+  std::vector<float> radiuses_;
   bool closed_ = false;
 
   mutable std::vector<float> cacheArcLengths_;  // TODO rename, mutable

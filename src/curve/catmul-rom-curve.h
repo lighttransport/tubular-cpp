@@ -38,8 +38,9 @@ private:
 
 class CatmullRomCurve final : public Curve {
 public:
-  CatmullRomCurve(const std::vector<float3>& points, const bool closed = false)
-      : Curve(points, closed) {}
+  CatmullRomCurve(const std::vector<float3>& points,
+                  const std::vector<float>& radiuses, const bool closed = false)
+      : Curve(points, radiuses, closed) {}
   ~CatmullRomCurve() override;
 
 protected:
@@ -84,6 +85,25 @@ protected:
 
     CubicPoly3D poly(p0, p1, p2, p3);
     return poly.Calculate(weight);
+  }
+
+  float GetRadius(const float t) const override {
+    assert(points_.size() == radiuses_.size());
+    if (radiuses_.size() < 2) {
+      // error
+      return 0.f;
+    }
+
+    const size_t num_segment = radiuses_.size() - 1;
+
+    const float d = 1.f / num_segment;
+
+    const size_t l = size_t(floorf(t / d));
+    const size_t r = size_t(ceilf(t / d));
+
+    const float s = (t - d * l) / d;
+
+    return radiuses_.at(l) * (1.f - s) + radiuses_.at(r) * s;
   }
 };
 }  // namespace tubular

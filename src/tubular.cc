@@ -47,8 +47,7 @@ static void CopyFloat4ToFloatArray(const std::vector<float4>& src,
 }
 
 TriangleMesh BuildTriangleMesh(const Curve* curve, const int tubularSegments,
-                               const float radius, const int radialSegments,
-                               const bool closed) {
+                               const int radialSegments, const bool closed) {
   std::vector<float3> vertices;
   std::vector<float3> normals;
   std::vector<float4> tangents;
@@ -59,10 +58,10 @@ TriangleMesh BuildTriangleMesh(const Curve* curve, const int tubularSegments,
       curve->ComputeFrenetFrames(tubularSegments, closed);
 
   for (int i = 0; i < tubularSegments; i++) {
-    GenerateSegment(curve, frames, tubularSegments, radius, radialSegments, i,
+    GenerateSegment(curve, frames, tubularSegments, radialSegments, i,
                     &vertices, &normals, &tangents);
   }
-  GenerateSegment(curve, frames, tubularSegments, radius, radialSegments,
+  GenerateSegment(curve, frames, tubularSegments, radialSegments,
                   (!closed) ? tubularSegments : 0, &vertices, &normals,
                   &tangents);
 
@@ -106,14 +105,14 @@ TriangleMesh BuildTriangleMesh(const Curve* curve, const int tubularSegments,
 }
 
 void GenerateSegment(const Curve* curve, const std::vector<FrenetFrame>& frames,
-                     const int tubularSegments, const float radius,
-                     const int radialSegments, const int i,
-                     std::vector<float3>* vertices,
+                     const int tubularSegments, const int radialSegments,
+                     const int i, std::vector<float3>* vertices,
                      std::vector<float3>* normals,
                      std::vector<float4>* tangents) {
   const float u         = 1.f * i / tubularSegments;
   const float3 p        = curve->GetPointAt(u);
   const FrenetFrame& fr = frames[size_t(i)];
+  const float radius    = curve->GetRadiusAt(u);
 
   const float3 N = fr.Normal();
   const float3 B = fr.Binormal();
@@ -443,15 +442,15 @@ void Tubular(const TubularConfig& config) {
         tmp.emplace_back(strand.data() + i * 3);
       }
 
-      CatmullRomCurve catmul_rom_curve(tmp);
+      CatmullRomCurve catmul_rom_curve(tmp,
+                                       curve_thicknesses[bundle_id][strand_id]);
       const int tubular_segments =
           std::min(int((tmp.size() - 1) * 4), config.max_segments);
-      const float radius       = config.radius;
       const int radialSegments = config.radial_segments;
       const bool closed        = false;
 
       TriangleMesh mesh = BuildTriangleMesh(&catmul_rom_curve, tubular_segments,
-                                            radius, radialSegments, closed);
+                                            radialSegments, closed);
       mesh.name = std::to_string(bundle_id) + "-" + std::to_string(strand_id);
       meshes.emplace_back(mesh);
     }
