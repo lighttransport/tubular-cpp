@@ -63,7 +63,13 @@ Convert curves data to wavefront .obj. Setting is done in `config.json` file.
     "max_segments": 15,
     "radial_segments": 3,
     "radius_scale": 1.0,
-    "user_radius": -1.0
+    "user_radius": -1.0,
+    "fix_normal": [
+        0.0,
+        0.0,
+        -1.0
+    ],
+    "one_side_plane": false
 }
 ```
 
@@ -76,6 +82,8 @@ Input curves can be speficied either `xpd_filepath` or `cyhair_filepath`.
 - `radial_segments` The number of radial segments (int)
 - `radius_scale` radius scale (float)
 - `user_radius` Use user supplied radius. If `user_radius` is negative, tubular uses the thicknesses stored in curves data(cyhair only for now). (float)
+- `fix_normal` Make faces face the specified direction. (float x 3)
+- `one_side_plane` When radial_segments is 2, use one side planes. (bool)
 
 ### How to execute
 
