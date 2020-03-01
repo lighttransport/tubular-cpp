@@ -9,6 +9,7 @@
 #include "io/load_xpd.h"
 #include "io/obj_writer.h"
 #include "logger/logger.h"
+#include "tubular-math.h"
 
 namespace tubular {
 
@@ -47,15 +48,22 @@ static void CopyFloat4ToFloatArray(const std::vector<float4>& src,
 }
 
 TriangleMesh BuildTriangleMesh(const Curve* curve, const int tubularSegments,
-                               const int radialSegments, const bool closed) {
+                               const int radialSegments, const bool closed,
+                               const float3& fix_normal,
+                               const bool one_side_plane = false) {
   std::vector<float3> vertices;
   std::vector<float3> normals;
   std::vector<float4> tangents;
   std::vector<float2> uvs;
   std::vector<int> indices;
 
-  const std::vector<FrenetFrame>& frames =
-      curve->ComputeFrenetFrames(tubularSegments, closed);
+  std::vector<FrenetFrame> frames;
+  if (IsZero(fix_normal)) {
+    curve->ComputeFrenetFrames(tubularSegments, closed, &frames);
+  } else {
+    curve->ComputeFrenetFramesFixNormal(tubularSegments, closed,
+                                        vnormalized(fix_normal), &frames);
+  }
 
   for (int i = 0; i < tubularSegments; i++) {
     GenerateSegment(curve, frames, tubularSegments, radialSegments, i,
@@ -87,6 +95,10 @@ TriangleMesh BuildTriangleMesh(const Curve* curve, const int tubularSegments,
       indices.emplace_back(b);
       indices.emplace_back(d);
       indices.emplace_back(c);
+
+      if (radialSegments == 2 && one_side_plane) {
+        break;
+      }
     }
   }
 
@@ -118,7 +130,7 @@ void GenerateSegment(const Curve* curve, const std::vector<FrenetFrame>& frames,
   const float3 B = fr.Binormal();
 
   for (int j = 0; j <= radialSegments; j++) {
-    const float v    = 1.f * j / radialSegments * PI2;
+    const float v    = (1.f * j - 0.5f) / radialSegments * PI2;
     const float sin_ = sin(v);
     const float cos_ = cos(v);
 
@@ -438,6 +450,10 @@ void Tubular(const TubularConfig& config) {
   std::vector<std::vector<bool>> use_or_not =
       RandomSelection(curve_vertices, config.max_strands);
 
+  if (!IsZero(float3(config.fix_normal.data()))) {
+    RTLOG_INFO("fix normal");
+  }
+
   std::vector<TriangleMesh> meshes;
   for (size_t bundle_id = 0; bundle_id < curve_vertices.size(); ++bundle_id) {
     const auto& bundle = curve_vertices[bundle_id];
@@ -466,8 +482,9 @@ void Tubular(const TubularConfig& config) {
       const int radialSegments = config.radial_segments;
       const bool closed        = false;
 
-      TriangleMesh mesh = BuildTriangleMesh(&catmul_rom_curve, tubular_segments,
-                                            radialSegments, closed);
+      TriangleMesh mesh = BuildTriangleMesh(
+          &catmul_rom_curve, tubular_segments, radialSegments, closed,
+          -float3(config.fix_normal.data()), config.one_side_plane);
       mesh.name = std::to_string(bundle_id) + "-" + std::to_string(strand_id);
       meshes.emplace_back(mesh);
     }

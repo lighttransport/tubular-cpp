@@ -3,6 +3,7 @@
 
 #include <algorithm>
 
+#include "tubular-math.h"
 #include "type.h"
 
 #ifdef __clang__
@@ -29,6 +30,10 @@ inline T Saturate(const T x) {
 
 inline bool IsFinite(const float3& v) {
   return std::isfinite(v[0]) && std::isfinite(v[1]) && std::isfinite(v[2]);
+}
+
+inline bool IsZero(const float3& v) {
+  return fabsf(v.x()) < kEps && fabsf(v.y()) < kEps && fabsf(v.z()) < kEps;
 }
 
 inline float3 ArbitraryAxisRotation(const float3& axis, const float rad,

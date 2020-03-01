@@ -2,6 +2,7 @@
 #define TUBULAR_TUBULAR_CONFIG_H_
 #include <stdint.h>
 
+#include <array>
 #include <string>
 
 namespace tubular {
@@ -20,6 +21,10 @@ struct TubularConfig {
   uint32_t max_strands = 0;  // 0 -> use all strands
 
   float tile_ratio = 4.0;
+
+  std::array<float, 3> fix_normal;
+
+  bool one_side_plane = false;  // radial_segments == 2 only
 };
 
 }  // namespace tubular
