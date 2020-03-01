@@ -23,6 +23,8 @@ struct TubularConfig {
   float tile_ratio = 4.0;
 
   std::array<float, 3> fix_normal;
+
+  bool one_side_plane = false;  // radial_segments == 2 only
 };
 
 }  // namespace tubular

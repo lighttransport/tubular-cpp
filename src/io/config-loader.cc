@@ -39,6 +39,9 @@ void init(tubular::TubularConfig* config, ObjectHandler* h) {
 
   h->add_property("fix_normal", &(config->fix_normal),
                   staticjson::Flags::Optional);
+
+  h->add_property("one_side_plane", &(config->one_side_plane),
+                  staticjson::Flags::Optional);
 }
 }  // namespace staticjson
 

@@ -49,7 +49,8 @@ static void CopyFloat4ToFloatArray(const std::vector<float4>& src,
 
 TriangleMesh BuildTriangleMesh(const Curve* curve, const int tubularSegments,
                                const int radialSegments, const bool closed,
-                               const float3& fix_normal) {
+                               const float3& fix_normal,
+                               const bool one_side_plane = false) {
   std::vector<float3> vertices;
   std::vector<float3> normals;
   std::vector<float4> tangents;
@@ -94,6 +95,10 @@ TriangleMesh BuildTriangleMesh(const Curve* curve, const int tubularSegments,
       indices.emplace_back(b);
       indices.emplace_back(d);
       indices.emplace_back(c);
+
+      if (radialSegments == 2 && one_side_plane) {
+        break;
+      }
     }
   }
 
@@ -477,9 +482,9 @@ void Tubular(const TubularConfig& config) {
       const int radialSegments = config.radial_segments;
       const bool closed        = false;
 
-      TriangleMesh mesh =
-          BuildTriangleMesh(&catmul_rom_curve, tubular_segments, radialSegments,
-                            closed, -float3(config.fix_normal.data()));
+      TriangleMesh mesh = BuildTriangleMesh(
+          &catmul_rom_curve, tubular_segments, radialSegments, closed,
+          -float3(config.fix_normal.data()), config.one_side_plane);
       mesh.name = std::to_string(bundle_id) + "-" + std::to_string(strand_id);
       meshes.emplace_back(mesh);
     }
