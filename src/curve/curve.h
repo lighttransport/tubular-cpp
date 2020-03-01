@@ -24,8 +24,11 @@ public:
   // TODO return value. use pointer?
   std::vector<float> GetLengths(int divisions = -1) const;
 
-  std::vector<FrenetFrame> ComputeFrenetFrames(const int segments,
-                                               const bool closed) const;
+  void ComputeFrenetFrames(const int segments, const bool closed,
+                           std::vector<FrenetFrame>* frames) const;
+  void ComputeFrenetFramesFixNormal(const int segments, const bool closed,
+                                    const float3& fix_normal,
+                                    std::vector<FrenetFrame>* frames) const;
 
 protected:
   virtual float3 GetPoint(const float t) const = 0;

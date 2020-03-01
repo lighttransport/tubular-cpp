@@ -36,6 +36,9 @@ void init(tubular::TubularConfig* config, ObjectHandler* h) {
                   staticjson::Flags::Optional);
   h->add_property("tile_ratio", &(config->tile_ratio),
                   staticjson::Flags::Optional);
+
+  h->add_property("fix_normal", &(config->fix_normal),
+                  staticjson::Flags::Optional);
 }
 }  // namespace staticjson
 
