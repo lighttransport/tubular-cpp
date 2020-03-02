@@ -74,10 +74,18 @@ TriangleMesh BuildTriangleMesh(const Curve* curve, const int tubularSegments,
                   &tangents);
 
   for (int i = 0; i <= tubularSegments; i++) {
-    for (int j = 0; j <= radialSegments; j++) {
-      const float u = 1.f * j / radialSegments;
-      const float v = 1.f * i / tubularSegments;
-      uvs.emplace_back(u, v);
+    if (radialSegments == 2 && one_side_plane) {
+      for (int j = 0; j <= radialSegments; j++) {
+        const float u = std::min(1.f, 1.f * j / (radialSegments - 1));
+        const float v = 1.f * i / tubularSegments;
+        uvs.emplace_back(u, v);
+      }
+    } else {
+      for (int j = 0; j <= radialSegments; j++) {
+        const float u = 1.f * j / radialSegments;
+        const float v = 1.f * i / tubularSegments;
+        uvs.emplace_back(u, v);
+      }
     }
   }
 
@@ -209,7 +217,7 @@ static void CombineUV(const tinyobj::attrib_t& attrib,
   const std::pair<double, double> tile =
       SpreadTileSize(uint32_t(n), tile_ratio);
   const uint32_t w = uint32_t(1.0 / tile.first);
-  const uint32_t h = uint32_t(1.0 / tile.second);
+  const uint32_t h = (n + w - 1) / w;  // ceil
 
   if (w * h < n) {
     RTLOG_ERROR("w {}  h {}  w * h {}  n {}", w, h, w * h, n);
