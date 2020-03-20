@@ -12,15 +12,19 @@
 
 namespace tubular {
 
-static std::string GetFileBasename(const std::string& FileName) {
+static std::string GetFileBasename(const std::string &FileName) {
   if (FileName.find_last_of(".") != std::string::npos)
     return FileName.substr(0, FileName.find_last_of("."));
   return "";
 }
 
-bool WriteMat(const std::string& filename,
-              const std::vector<tinyobj::material_t>& materials) {
-  FILE* fp = fopen(filename.c_str(), "w");
+static std::string GetBaseFilename(const std::string &filepath) {
+  return filepath.substr(filepath.find_last_of("/\\") + 1);
+}
+
+bool WriteMat(const std::string &filename,
+              const std::vector<tinyobj::material_t> &materials) {
+  FILE *fp = fopen(filename.c_str(), "w");
   if (!fp) {
     fprintf(stderr, "Failed to open file [ %s ] for write.\n",
             filename.c_str());
@@ -56,23 +60,26 @@ bool WriteMat(const std::string& filename,
   return true;
 }
 
-bool WriteObj(const std::string& filename, const tinyobj::attrib_t& attributes,
-              const std::vector<tinyobj::shape_t>& shapes,
-              const std::vector<tinyobj::material_t>& materials,
+bool WriteObj(const std::string &filename, const tinyobj::attrib_t &attributes,
+              const std::vector<tinyobj::shape_t> &shapes,
+              const std::vector<tinyobj::material_t> &materials,
               bool coordTransform) {
-  FILE* fp = fopen(filename.c_str(), "w");
+  FILE *fp = fopen(filename.c_str(), "w");
   if (!fp) {
     fprintf(stderr, "Failed to open file [ %s ] for write.\n",
             filename.c_str());
     return false;
   }
 
-  std::string basename          = GetFileBasename(filename);
-  std::string material_filename = basename + ".mtl";
+  const std::string basename          = GetFileBasename(filename);
+  const std::string material_filename = basename + ".mtl";
+
+  const std::string material_filename_with_out_dir =
+      GetBaseFilename(material_filename);
 
   int prev_material_id = -1;
 
-  fprintf(fp, "mtllib %s\n\n", material_filename.c_str());
+  fprintf(fp, "mtllib %s\n\n", material_filename_with_out_dir.c_str());
 
   // facevarying vtx
   for (size_t k = 0; k < attributes.vertices.size(); k += 3) {
@@ -140,7 +147,7 @@ bool WriteObj(const std::string& filename, const tinyobj::attrib_t& attributes,
       // need some kind of a dynamic loop.
       fprintf(fp, "f");
       for (int l = 0; l < v_per_f; l++) {
-        const tinyobj::index_t& ref = shapes[i].mesh.indices[k + l];
+        const tinyobj::index_t &ref = shapes[i].mesh.indices[k + l];
         if (has_vn && has_vt) {
           // v0/t0/vn0
           fprintf(fp, " %d/%d/%d", ref.vertex_index + 1, ref.texcoord_index + 1,
