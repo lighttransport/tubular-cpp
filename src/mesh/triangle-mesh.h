@@ -17,7 +17,9 @@ struct TriangleMesh {
   std::vector<float> tangents;  // 4(xyzw) * num tangent
   std::vector<float> uvs;       // 2(uv) * num uv // TODO rename texcoord
 
-  std::vector<uint32_t> indices;  // 3(v1v2v3) * num_faces_
+  std::vector<uint32_t> vertex_indices;  // 3(v1v2v3) * num_faces_
+  std::vector<uint32_t> normal_indices;  // 3(v1v2v3) * num_faces_
+  std::vector<uint32_t> uv_indices;      // 3(v1v2v3) * num_faces_
 
   std::string name;
 };
