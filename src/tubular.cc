@@ -1,5 +1,6 @@
 #include "tubular.h"
 
+#include <assert.h>
 #include <math.h>
 
 #include <random>
@@ -55,7 +56,6 @@ TriangleMesh BuildTriangleMesh(const Curve *curve, const int tubularSegments,
   std::vector<float3> normals;
   std::vector<float4> tangents;
   std::vector<float2> uvs;
-  std::vector<int> indices;
 
   std::vector<FrenetFrame> frames;
   if (IsZero(fix_normal)) {
@@ -89,20 +89,46 @@ TriangleMesh BuildTriangleMesh(const Curve *curve, const int tubularSegments,
     }
   }
 
+  std::vector<uint32_t> vertex_indices;
+  std::vector<uint32_t> normal_indices;
+  std::vector<uint32_t> uv_indices;
+
   for (int j = 1; j <= tubularSegments; j++) {
     for (int i = 1; i <= radialSegments; i++) {
-      const int a = (radialSegments + 1) * (j - 1) + (i - 1);
-      const int b = (radialSegments + 1) * j + (i - 1);
-      const int c = (radialSegments + 1) * j + i;
-      const int d = (radialSegments + 1) * (j - 1) + i;
+      {  // vertex, normal
 
-      // faces
-      indices.emplace_back(a);
-      indices.emplace_back(d);
-      indices.emplace_back(b);
-      indices.emplace_back(b);
-      indices.emplace_back(d);
-      indices.emplace_back(c);
+        const int a = radialSegments * (j - 1) + (i - 1);
+        const int b = radialSegments * j + (i - 1);
+        const int c = radialSegments * j + (i % radialSegments);
+        const int d = radialSegments * (j - 1) + (i % radialSegments);
+
+        vertex_indices.emplace_back(uint32_t(a));
+        vertex_indices.emplace_back(uint32_t(d));
+        vertex_indices.emplace_back(uint32_t(b));
+        vertex_indices.emplace_back(uint32_t(b));
+        vertex_indices.emplace_back(uint32_t(d));
+        vertex_indices.emplace_back(uint32_t(c));
+
+        normal_indices.emplace_back(uint32_t(a));
+        normal_indices.emplace_back(uint32_t(d));
+        normal_indices.emplace_back(uint32_t(b));
+        normal_indices.emplace_back(uint32_t(b));
+        normal_indices.emplace_back(uint32_t(d));
+        normal_indices.emplace_back(uint32_t(c));
+      }
+      {  // uv
+        const int a = (radialSegments + 1) * (j - 1) + (i - 1);
+        const int b = (radialSegments + 1) * j + (i - 1);
+        const int c = (radialSegments + 1) * j + i;
+        const int d = (radialSegments + 1) * (j - 1) + i;
+
+        uv_indices.emplace_back(uint32_t(a));
+        uv_indices.emplace_back(uint32_t(d));
+        uv_indices.emplace_back(uint32_t(b));
+        uv_indices.emplace_back(uint32_t(b));
+        uv_indices.emplace_back(uint32_t(d));
+        uv_indices.emplace_back(uint32_t(c));
+      }
 
       if (radialSegments == 2 && one_side_plane) {
         break;
@@ -115,12 +141,10 @@ TriangleMesh BuildTriangleMesh(const Curve *curve, const int tubularSegments,
   CopyFloat3ToFloatArray(normals, &(mesh.normals));
   CopyFloat4ToFloatArray(tangents, &(mesh.tangents));
   CopyFloat2ToFloatArray(uvs, &(mesh.uvs));
-  mesh.indices.clear();
-  mesh.indices.reserve(indices.size());
-  for (auto &v : indices) {
-    mesh.indices.emplace_back(v);
-  }
 
+  mesh.vertex_indices = vertex_indices;
+  mesh.normal_indices = normal_indices;
+  mesh.uv_indices     = uv_indices;
   return mesh;
 }
 
@@ -137,7 +161,7 @@ void GenerateSegment(const Curve *curve, const std::vector<FrenetFrame> &frames,
   const float3 N = fr.Normal();
   const float3 B = fr.Binormal();
 
-  for (int j = 0; j <= radialSegments; j++) {
+  for (int j = 0; j < radialSegments; j++) {
     const float v    = (1.f * j - 0.5f) / radialSegments * PI2;
     const float sin_ = sin(v);
     const float cos_ = cos(v);
@@ -338,18 +362,21 @@ static void ToTinyObjMesh(const std::vector<TriangleMesh> &meshes,
     for (size_t mesh_id = 0; mesh_id < meshes.size(); ++mesh_id) {
       const auto &mesh = meshes[mesh_id];
 
-      const size_t num_faces = mesh.indices.size() / 3;
+      const size_t num_faces = mesh.vertex_indices.size() / 3;
+      assert(mesh.vertex_indices.size() == mesh.normal_indices.size() &&
+             mesh.normal_indices.size() == mesh.uv_indices.size());
+
       for (size_t f_id = 0; f_id < num_faces; ++f_id) {
         face_cnt++;
         shape.mesh.num_face_vertices.emplace_back(3);
         for (size_t i = 0; i < 3; ++i) {
           tinyobj::index_t id;
           id.vertex_index =
-              int(mesh.indices[f_id * 3l + i]) + vertex_offset[mesh_id];
+              int(mesh.vertex_indices[f_id * 3l + i]) + vertex_offset[mesh_id];
           id.normal_index =
-              int(mesh.indices[f_id * 3l + i]) + normal_offset[mesh_id];
+              int(mesh.normal_indices[f_id * 3l + i]) + normal_offset[mesh_id];
           id.texcoord_index =
-              int(mesh.indices[f_id * 3l + i]) + texcoord_offset[mesh_id];
+              int(mesh.uv_indices[f_id * 3l + i]) + texcoord_offset[mesh_id];
           shape.mesh.indices.emplace_back(id);
         }
       }
@@ -361,18 +388,18 @@ static void ToTinyObjMesh(const std::vector<TriangleMesh> &meshes,
     for (size_t mesh_id = 0; mesh_id < meshes.size(); ++mesh_id) {
       tinyobj::shape_t shape;
       const auto &mesh       = meshes[mesh_id];
-      const size_t num_faces = mesh.indices.size() / 3;
+      const size_t num_faces = mesh.vertex_indices.size() / 3;
 
       for (size_t f_id = 0; f_id < num_faces; ++f_id) {
         shape.mesh.num_face_vertices.emplace_back(3);
         for (size_t i = 0; i < 3; ++i) {
           tinyobj::index_t id;
           id.vertex_index =
-              int(mesh.indices[f_id * 3l + i]) + vertex_offset[mesh_id];
+              int(mesh.vertex_indices[f_id * 3l + i]) + vertex_offset[mesh_id];
           id.normal_index =
-              int(mesh.indices[f_id * 3l + i]) + normal_offset[mesh_id];
+              int(mesh.normal_indices[f_id * 3l + i]) + normal_offset[mesh_id];
           id.texcoord_index =
-              int(mesh.indices[f_id * 3l + i]) + texcoord_offset[mesh_id];
+              int(mesh.uv_indices[f_id * 3l + i]) + texcoord_offset[mesh_id];
           shape.mesh.indices.emplace_back(id);
         }
       }
