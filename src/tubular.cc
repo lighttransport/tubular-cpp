@@ -15,31 +15,31 @@ namespace tubular {
 
 const float PI2 = kPi * 2.f;
 
-static void CopyFloat2ToFloatArray(const std::vector<float2>& src,
-                                   std::vector<float>* out) {
+static void CopyFloat2ToFloatArray(const std::vector<float2> &src,
+                                   std::vector<float> *out) {
   out->clear();
   out->reserve(src.size() * 2);
-  for (auto& v : src) {
+  for (auto &v : src) {
     out->emplace_back(v.x());
     out->emplace_back(v.y());
   }
 }
-static void CopyFloat3ToFloatArray(const std::vector<float3>& src,
-                                   std::vector<float>* out) {
+static void CopyFloat3ToFloatArray(const std::vector<float3> &src,
+                                   std::vector<float> *out) {
   out->clear();
   out->reserve(src.size() * 4);
-  for (auto& v : src) {
+  for (auto &v : src) {
     out->emplace_back(v.x());
     out->emplace_back(v.y());
     out->emplace_back(v.z());
     out->emplace_back(1.f);
   }
 }
-static void CopyFloat4ToFloatArray(const std::vector<float4>& src,
-                                   std::vector<float>* out) {
+static void CopyFloat4ToFloatArray(const std::vector<float4> &src,
+                                   std::vector<float> *out) {
   out->clear();
   out->reserve(src.size() * 4);
-  for (auto& v : src) {
+  for (auto &v : src) {
     out->emplace_back(v.x());
     out->emplace_back(v.y());
     out->emplace_back(v.z());
@@ -47,9 +47,9 @@ static void CopyFloat4ToFloatArray(const std::vector<float4>& src,
   }
 }
 
-TriangleMesh BuildTriangleMesh(const Curve* curve, const int tubularSegments,
+TriangleMesh BuildTriangleMesh(const Curve *curve, const int tubularSegments,
                                const int radialSegments, const bool closed,
-                               const float3& fix_normal,
+                               const float3 &fix_normal,
                                const bool one_side_plane = false) {
   std::vector<float3> vertices;
   std::vector<float3> normals;
@@ -117,21 +117,21 @@ TriangleMesh BuildTriangleMesh(const Curve* curve, const int tubularSegments,
   CopyFloat2ToFloatArray(uvs, &(mesh.uvs));
   mesh.indices.clear();
   mesh.indices.reserve(indices.size());
-  for (auto& v : indices) {
+  for (auto &v : indices) {
     mesh.indices.emplace_back(v);
   }
 
   return mesh;
 }
 
-void GenerateSegment(const Curve* curve, const std::vector<FrenetFrame>& frames,
+void GenerateSegment(const Curve *curve, const std::vector<FrenetFrame> &frames,
                      const int tubularSegments, const int radialSegments,
-                     const int i, std::vector<float3>* vertices,
-                     std::vector<float3>* normals,
-                     std::vector<float4>* tangents) {
+                     const int i, std::vector<float3> *vertices,
+                     std::vector<float3> *normals,
+                     std::vector<float4> *tangents) {
   const float u         = 1.f * i / tubularSegments;
   const float3 p        = curve->GetPointAt(u);
-  const FrenetFrame& fr = frames[size_t(i)];
+  const FrenetFrame &fr = frames[size_t(i)];
   const float radius    = curve->GetRadiusAt(u);
 
   const float3 N = fr.Normal();
@@ -151,11 +151,11 @@ void GenerateSegment(const Curve* curve, const std::vector<FrenetFrame>& frames,
   }
 }
 
-tinyobj::shape_t CombineShapes(const std::vector<tinyobj::shape_t>& shapes) {
+tinyobj::shape_t CombineShapes(const std::vector<tinyobj::shape_t> &shapes) {
   tinyobj::shape_t shape_out;
   shape_out.name = "cage_polygon";
 
-  for (const auto& shape : shapes) {
+  for (const auto &shape : shapes) {
     std::copy(shape.mesh.indices.begin(), shape.mesh.indices.end(),
               std::back_inserter(shape_out.mesh.indices));
 
@@ -196,10 +196,10 @@ static std::pair<double, double> SpreadTileSize(const uint32_t n,
   return std::make_pair(tmp, tmp * r);
 }
 
-static void CombineUV(const tinyobj::attrib_t& attrib,
-                      const std::vector<tinyobj::shape_t>& shapes,
-                      const double tile_ratio, tinyobj::attrib_t* attrib_out,
-                      std::vector<tinyobj::shape_t>* shapes_out) {
+static void CombineUV(const tinyobj::attrib_t &attrib,
+                      const std::vector<tinyobj::shape_t> &shapes,
+                      const double tile_ratio, tinyobj::attrib_t *attrib_out,
+                      std::vector<tinyobj::shape_t> *shapes_out) {
   // copy shapes //
   (*shapes_out) = shapes;
   /////////////////
@@ -233,14 +233,14 @@ static void CombineUV(const tinyobj::attrib_t& attrib,
   const double kMarginV       = ((1.0 / h) - tile_scale_v) * 0.5;
 
   for (size_t i = 0; i < n; i++) {
-    auto& shape_out = (*shapes_out)[i];
+    auto &shape_out = (*shapes_out)[i];
     const size_t x  = i % w;
     const size_t y  = i / w;
 
     const double u0 = double(x) / w;
     const double v0 = double(y) / h;
 
-    for (auto& index : shape_out.mesh.indices) {
+    for (auto &index : shape_out.mesh.indices) {
       if (new_vertex_indices[size_t(index.vertex_index)] == uint32_t(-1)) {
         new_vertex_indices[size_t(index.vertex_index)] =
             uint32_t(new_vertices.size() / 3);
@@ -295,15 +295,15 @@ static void CombineUV(const tinyobj::attrib_t& attrib,
   shapes_out->emplace_back(tmp_shape);
 }
 
-static void ToTinyObjMesh(const std::vector<TriangleMesh>& meshes,
+static void ToTinyObjMesh(const std::vector<TriangleMesh> &meshes,
                           const bool combine_shapes,
-                          tinyobj::attrib_t* attributes,
-                          std::vector<tinyobj::shape_t>* shapes) {
+                          tinyobj::attrib_t *attributes,
+                          std::vector<tinyobj::shape_t> *shapes) {
   std::vector<int> vertex_offset;
   std::vector<int> normal_offset;
   std::vector<int> texcoord_offset;
 
-  for (const auto& mesh : meshes) {
+  for (const auto &mesh : meshes) {
     vertex_offset.emplace_back(attributes->vertices.size() / 3);
     normal_offset.emplace_back(attributes->normals.size() / 3);
     texcoord_offset.emplace_back(attributes->texcoords.size() / 2);
@@ -336,7 +336,7 @@ static void ToTinyObjMesh(const std::vector<TriangleMesh>& meshes,
     tinyobj::shape_t shape;
     int face_cnt = 0;
     for (size_t mesh_id = 0; mesh_id < meshes.size(); ++mesh_id) {
-      const auto& mesh = meshes[mesh_id];
+      const auto &mesh = meshes[mesh_id];
 
       const size_t num_faces = mesh.indices.size() / 3;
       for (size_t f_id = 0; f_id < num_faces; ++f_id) {
@@ -360,7 +360,7 @@ static void ToTinyObjMesh(const std::vector<TriangleMesh>& meshes,
   } else {
     for (size_t mesh_id = 0; mesh_id < meshes.size(); ++mesh_id) {
       tinyobj::shape_t shape;
-      const auto& mesh       = meshes[mesh_id];
+      const auto &mesh       = meshes[mesh_id];
       const size_t num_faces = mesh.indices.size() / 3;
 
       for (size_t f_id = 0; f_id < num_faces; ++f_id) {
@@ -384,11 +384,11 @@ static void ToTinyObjMesh(const std::vector<TriangleMesh>& meshes,
 }
 
 static std::vector<std::vector<bool>> RandomSelection(
-    const std::vector<std::vector<std::vector<float>>>& vertices,
+    const std::vector<std::vector<std::vector<float>>> &vertices,
     const uint32_t max_strands) {
   std::vector<bool> bl;
-  for (const auto& v : vertices) {
-    for (const auto& vv : v) {
+  for (const auto &v : vertices) {
+    for (const auto &vv : v) {
       (void)vv;
       bl.push_back(true);
     }
@@ -405,9 +405,9 @@ static std::vector<std::vector<bool>> RandomSelection(
   }
   std::vector<std::vector<bool>> ret;
   size_t cnt = 0;
-  for (const auto& v : vertices) {
+  for (const auto &v : vertices) {
     ret.emplace_back();
-    for (const auto& vv : v) {
+    for (const auto &vv : v) {
       (void)vv;
       ret.back().push_back(bl[cnt]);
       cnt++;
@@ -417,11 +417,11 @@ static std::vector<std::vector<bool>> RandomSelection(
 }
 
 static void FixThicknesses(
-    const TubularConfig& config,
-    std::vector<std::vector<std::vector<float>>>* curve_thicknesses) {
-  for (auto& a : *curve_thicknesses) {
-    for (auto& b : a) {
-      for (auto& c : b) {
+    const TubularConfig &config,
+    std::vector<std::vector<std::vector<float>>> *curve_thicknesses) {
+  for (auto &a : *curve_thicknesses) {
+    for (auto &b : a) {
+      for (auto &c : b) {
         if (config.user_radius > 0.f) {
           c = config.user_radius;
         }
@@ -431,8 +431,8 @@ static void FixThicknesses(
   }
 }
 
-void Tubular(const TubularConfig& config) {
-  const std::string& xpd_filepath = config.xpd_filepath;
+void Tubular(const TubularConfig &config) {
+  const std::string &xpd_filepath = config.xpd_filepath;
 
   std::vector<std::vector<std::vector<float>>> curve_vertices;
   std::vector<std::vector<std::vector<float>>> curve_thicknesses;
@@ -464,9 +464,9 @@ void Tubular(const TubularConfig& config) {
 
   std::vector<TriangleMesh> meshes;
   for (size_t bundle_id = 0; bundle_id < curve_vertices.size(); ++bundle_id) {
-    const auto& bundle = curve_vertices[bundle_id];
+    const auto &bundle = curve_vertices[bundle_id];
     for (size_t strand_id = 0; strand_id < bundle.size(); ++strand_id) {
-      const std::vector<float>& strand = bundle[strand_id];
+      const std::vector<float> &strand = bundle[strand_id];
 
       if (strand.empty()) {
         RTLOG_WARN("empty strand");
@@ -512,7 +512,10 @@ void Tubular(const TubularConfig& config) {
 
   std::vector<tinyobj::material_t> output_materials;
   output_materials.emplace_back();
-  output_materials.back().name = "bake";
+  output_materials.back().name       = "bake";
+  output_materials.back().diffuse[0] = 1.f;
+  output_materials.back().diffuse[1] = 1.f;
+  output_materials.back().diffuse[2] = 1.f;
   // output_materials.back().diffuse_texname = "output.exr";
 
   WriteObj(config.obj_filepath, attributes, shapes, output_materials);
